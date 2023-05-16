@@ -1,0 +1,1 @@
+Secret code generate method, add first open terminal then type node and then press enter button to keyboard and the type this: require('crypto').randomBytes(64).toString('hex')

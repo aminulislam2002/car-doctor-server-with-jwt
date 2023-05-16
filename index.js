@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const jwt = require("jsonwebtoken");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 const app = express();
@@ -27,12 +28,26 @@ async function run() {
     const serviceCollection = client.db("carDoctor").collection("services");
     const bookingCollection = client.db("carDoctor").collection("bookings");
 
-    // services
+    // jwt
+
+    app.post("/jwt", (req, res) => {
+      const user = req.body;
+      console.log(user);
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "1h" });
+      res.send({ token });
+      console.log({ token });
+    });
+
+    // services routes api
+
+    // get all services route api
 
     app.get("/services", async (req, res) => {
       const result = await serviceCollection.find().toArray();
       res.send(result);
     });
+
+    // get specific services route api by id
 
     app.get("/services/:id", async (req, res) => {
       const id = req.params.id;
@@ -47,7 +62,9 @@ async function run() {
       res.send(result);
     });
 
-    // bookings
+    // bookings routes api
+
+    // get specific user bookings list api by user user email
 
     app.get("/bookings", async (req, res) => {
       console.log(req.query.email);
@@ -59,12 +76,16 @@ async function run() {
       res.send(result);
     });
 
+    // post or add a book route api
+
     app.post("/bookings", async (req, res) => {
       const booking = req.body;
       console.log(booking);
       const result = await bookingCollection.insertOne(booking);
       res.send(result);
     });
+
+    // update a book route api
 
     app.patch("/bookings/:id", async (req, res) => {
       const id = req.params.id;
@@ -79,6 +100,8 @@ async function run() {
       const result = await bookingCollection.updateOne(filter, updateDoc);
       res.send(result);
     });
+
+    // delete a book route api
 
     app.delete("/bookings/:id", async (req, res) => {
       const id = req.params.id;
