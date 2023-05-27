@@ -61,26 +61,25 @@ async function run() {
     // services routes api
 
     // get all services route api
-
-    app.get("/services", async (req, res) => {
-      const result = await serviceCollection.find().toArray();
-      res.send(result);
-    });
-
-    // get specific services route api by id
-
-    app.get("/services/:id", async (req, res) => {
-      const id = req.params.id;
-      const query = { _id: new ObjectId(id) };
-
+    app.get('/services', async (req, res) => {
+      const sort = req.query.sort; 
+      const search = req.query.search;
+      console.log(search);
+      // const query = {};
+      // const query = { price: {$gte: 50, $lte:150}};
+      // db.InspirationalWomen.find({first_name: { $regex: /Harriet/i} })
+      const query = {title: { $regex: search, $options: 'i'}}
       const options = {
-        // Include only the `title` and `imdb` fields in the returned document
-        projection: { title: 1, price: 1, service_id: 1, img: 1 },
+          // sort matched documents in descending order by rating
+          sort: { 
+              "price": sort === 'asc' ? 1 : -1
+          }
+          
       };
-
-      const result = await serviceCollection.findOne(query, options);
+      const cursor = serviceCollection.find(query, options);
+      const result = await cursor.toArray();
       res.send(result);
-    });
+  })
 
     // bookings routes api
 
@@ -103,7 +102,6 @@ async function run() {
     });
 
     // post or add a book route api
-
     app.post("/bookings", async (req, res) => {
       const booking = req.body;
       console.log(booking);
@@ -112,7 +110,6 @@ async function run() {
     });
 
     // update a book route api
-
     app.patch("/bookings/:id", async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
@@ -128,7 +125,6 @@ async function run() {
     });
 
     // delete a book route api
-
     app.delete("/bookings/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
